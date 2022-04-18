@@ -1,6 +1,7 @@
 import { Router, Application, Request, Response, NextFunction, default as express } from "express";
 import { AcceptedLanguages, getDegree, getWeather } from "../weather/";
 import { getLanguage } from "../weather";
+import cors from "cors";
 
 /*
 Other possibilities
@@ -40,7 +41,7 @@ type RouteEntry = {
 }
 type MiddlewareEntry = {
   preflight: boolean,
-  route: string,
+  route?: string,
   handler: (req: Request, res: Response, next: NextFunction) => any
 }
 const acceptedLanguages: AcceptedLanguages[] = Object.values(AcceptedLanguages).filter(item => Number.parseInt(item) === NaN);
@@ -84,6 +85,10 @@ const routes: { [path: string]: RouteEntry[]} = {
 };
 const middleware: MiddlewareEntry[] = [
   {
+    preflight: true,
+    handler: cors({ origin: "*" })
+  },
+  {
     preflight: false,
     route: "*",
     handler: (req, res) => res.status(404).send("404 not found")
@@ -106,8 +111,12 @@ export const getRouter = (): Router => {
 
     return array;
   }, ([ [], [] ] as [ MiddlewareEntry[], MiddlewareEntry[] ]));
-  for (const entry of preflightMiddleware)
-    router.use(entry.route, entry.handler);
+  for (const entry of preflightMiddleware) {
+    if (entry.route)
+      router.use(entry.route, entry.handler);
+    else
+      router.use(entry.handler);
+  }
 
   for (const path in routes) {
     const entries = routes[path];
@@ -115,8 +124,12 @@ export const getRouter = (): Router => {
       router[entry.method](path, entry.handler);
   }
 
-  for (const entry of postflightMiddleware)
-    router.use(entry.route, entry.handler);
+  for (const entry of postflightMiddleware) {
+    if (entry.route)
+      router.use(entry.route, entry.handler);
+    else
+      router.use(entry.handler);
+  }
 
   return router;
 }
