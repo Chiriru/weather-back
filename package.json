@@ -6,8 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start": "tsc && node ./dist/",
-    "watch": "tsc && nodemon ./dist/"
+    "start": "tsc && node ./dist/"
   },
   "author": "vVanish",
   "license": "MIT",
