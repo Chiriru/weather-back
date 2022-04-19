@@ -67,10 +67,11 @@ export const getDegree = (maybeDegreeType: string): DegreeType | undefined => {
   const degreeType: DegreeType = DegreeType[maybeDegreeType as keyof typeof DegreeType];
   return degreeType;
 }
-export const getWeather = ({ lang, degreeType, timeout, search }: FindOptions) => {
-  return new Promise((resolve, reject) => {
+export const getWeather = ({ lang = "en_us", degreeType, timeout, search }: FindOptions) => {
+  return new Promise((resolve: (value: [FindObject]) => void, reject: (err: Error) => void) => {
+    const language = lang as string;
     const options = {
-      lang: lang?.includes("_") ? lang.split("_").join("-") : lang,
+      lang: language.includes("_") ? language.split("_").join("-") : language,
       degreeType,
       timeout,
       search
